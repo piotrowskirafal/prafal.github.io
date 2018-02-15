@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Rich model in Kotlin</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Rich domain model in Kotlin
+
+
+---
+# About Kotlin
+
+- JetBrains language
+
+- Invented in 2011
+
+- Compiles to Java bytecode (... and to javascript)
+
+- Runs on JVM
+
+- Can be mixed with Java
+
+- null safe, better lambdas, named arguments, default arguments, pattern matching, more functional
+
+
+---
+# Can Kotlin replace Java?
+
+
+
+
+---
+# Val
+Lombok:
+```Java
+val example = new ArrayList<String>();
+```
+
+```Java
+final ArrayList<String> example = new ArrayList<String>();
+```
+
+
+Kotlin:
+```Java
+val e = ArrayList<String>()
+```
+
+
+
+---
+# Not Null
+Lombok:
+```Java
+public void f(@NonNull String b) {
+  //...
+}
+```
+
+Kotlin:
+```Java
+fun f(val b: String) {
+  //...
+}
+```
+
+
+
+---
+# Cleanup
+Lombok:
+```Java
+@Cleanup
+InputStream in = new FileInputStream("foo.txt");
+```
+
+Kotlin:
+```Java
+FileInputStream("foo.txt").use {
+  //...
+}
+```
+
+
+
+---
+# Getter + Constructor
+Lombok:
+```Java
+public class Person {
+    @Getter
+    private String firstName;
+    public Person(String firstName) {
+        this.firstName = firstName;
+    }
+}
+```
+
+Kotlin:
+```Java
+class Person (val firstName: String)
+```
+
+
+
+---
+# Getter + Setter + Constructor
+Lombok:
+```Java
+public class Person {
+    @Setter
+    @Getter
+    private String firstName;
+    public Person(String firstName) {
+        this.firstName = firstName;
+    }
+}
+```
+
+Kotlin:
+```Java
+class Person (var firstName: String)
+```
+
+
+
+
+---
+# POJO
+Lombok:
+```Java
+@Data
+public class Person {
+    private String firstName;
+    private String lastName;
+}
+```
+
+Kotlin:
+```Java
+data class Person (var firstName: String, var lastName: String)
+```
+
+
+---
+# Value Object
+Lombok:
+```Java
+@Value
+public class Person {
+    private String firstName;
+    private String lastName;
+}
+```
+
+Kotlin:
+```Java
+data class Person (val firstName: String, val lastName: String)
+```
+
+
+
+
+
+---
+# Simple Builder
+Lombok:
+```Java
+@Builder
+public class Person {
+  private String firstName;
+  private String lastName;
+}
+
+Person person = Person
+    .builder()
+    .firstName("Rafal")
+    .lastName("Piotrowski")
+    .build();
+```
+
+Kotlin:
+```Java
+data class Person (val firstName: String, val lastName: String)
+
+val person = Person(firstName = "Rafał", lastName = "Piotrowski")
+```
+
+
+
+
+
+---
+# Value Object in Kotlin
+```Java
+data class Person(
+  val firstName: String, 
+  val middleName: String? = null, 
+  val lastName: String
+)
+
+
+
+val person1 = Person("Rafał", "Dawid", "Piotrowski")
+
+val person2 = Person(lastName = "Piotrowski", middleName = "Dawid", 
+  firstName = "Rafał")
+
+val person3 = Person(firstName = "Rafał", lastName = "Piotrowski")
+```
+
+
+
+---
+# Factory method in Kotlin
+```Java
+data class Person(
+  val firstName: String, 
+  val middleName: String, 
+  val lastName: String) {
+
+    companion object {
+        fun simpletPerson(lastName: String): Person {
+            return Person("Default", "Default", lastName)
+        }
+    }
+}
+
+
+val person = Person.simpletPerson("Piotrowski")
+
+```
+
+
+
+
+
+---
+# DSL in Kotlin
+```Java
+data class Person(
+  var firstName: String? = null, 
+  var middleName: String? = null, 
+  var lastName: String? = null
+)
+
+
+fun person(block: Person.() -> Unit): Person = Person().apply(block)
+
+
+val person = person { 
+    firstName = "Rafał"
+    middleName = "Dawid"
+    lastName = "Piotrowski"
+}
+```
+
+
+
+---
+# String interpolation
+```Java
+val x = 4
+val y = 7
+
+
+print("sum of $x and $y is ${x + y}")
+
+```
+
+
+
+---
+# When - pattern matching?
+```Java
+val res: Boolean = when {
+    obj == null -> false
+    obj is String -> true
+    else -> throw IllegalStateException()
+}
+
+```
+
+
+
+
+---
+# Custom getter?
+```Java
+data class Person constructor(
+        val firstName: String,
+        val middleName: String? = null,
+        private val _lastName: String) {
+
+    var lastName: String = _lastName
+        get() = "Last name is: $field"
+        private set
+}
+```
+
+
+
+
+---
+# Links
+
+- https://dzone.com/articles/comparing-lombok-and-kotlin
+
+- https://dzone.com/articles/kotlin-dsl-from-theory-to-practice
+
+- https://blog.frankel.ch/comparing-lombok-and-kotlin/
+
+- https://proandroiddev.com/writing-dsls-in-kotlin-part-1-7f5d2193f277
+
+- https://proandroiddev.com/writing-dsls-in-kotlin-part-2-cd9dcd0c4715
+
+- https://github.com/piotrowskirafal/point-in-polygon
+
+- https://github.com/ivan-osipov/kotlin-dsl-example
+
+
+
+
+
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+        highlightLanguage: 'java',
+        highlightStyle: 'github'
+});
+    </script>
+  </body>
+</html>
